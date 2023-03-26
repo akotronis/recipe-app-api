@@ -24,6 +24,11 @@ ARG DEV=false
 RUN python -m venv /py && \
     # Upgrate pip inside virtual environment
     /py/bin/pip install --upgrade pip && \
+    # Install required alpine specific packages for Postgres
+    apk add --update --no-cache postgresql-client && \
+    # Use -- virtual to be able to remove them later
+    apk add --update --no-cache --virtual .tmp-build-deps \
+        build-base postgresql-dev musl-dev && \
     # Install dependencies inside virtual environment
     /py/bin/pip install -r /tmp/requirements.txt && \
     # Shell script logic to install dev requirements only on dev environment
@@ -33,6 +38,9 @@ RUN python -m venv /py && \
     # Remove files/folders we don't need, when 
     # creating an image
     rm -rf /tmp && \
+    # Remove alpine specific Postgres dependencies that required
+    # only for pyscopg2 installation
+    apk del .tmp-build-deps && \
     # Add user: Best practice NOT to use the root user
     # DON'T run app the app using the root user
     # if hacked, the attacker will have access to
