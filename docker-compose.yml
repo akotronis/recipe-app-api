@@ -1,0 +1,22 @@
+version: "3.9"
+
+services:
+  app:
+    build:
+      context: .
+      # Environment variables accessible only during the build process
+      args:
+        - DEV=true
+    ports:
+      # Local machine: Container
+      - "8000:8000"
+    volumes:
+      # Reflect code updates on local project
+      # to running container in real time
+      # Avoids having to build again the image
+      # every time we change the code
+      - ./app:/app
+    # the command that is used to run ther service
+    # Can be overriden on `docker compose run`
+    command: >
+      sh -c "python manage.py runserver 0.0.0.0:8000"
